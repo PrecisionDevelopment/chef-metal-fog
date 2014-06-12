@@ -531,17 +531,7 @@ module ChefMetalFog
         options[:prefix] = 'sudo '
       end
 
-      remote_host = nil
-      if machine_spec.location['use_private_ip_for_ssh']
-        remote_host = server.private_ip_address
-      elsif !server.public_ip_address
-        Chef::Log.warn("Server #{machine_spec.name} has no public ip address.  Using private ip '#{server.private_ip_address}'.  Set driver option 'use_private_ip_for_ssh' => true if this will always be the case ...")
-        remote_host = server.private_ip_address
-      elsif server.public_ip_address
-        remote_host = server.public_ip_address
-      else
-        raise "Server #{server.id} has no private or public IP address!"
-      end
+      remote_host = get_server_ip_address(machine_spec, machine_options, server)
 
       #Enable pty by default
       options[:ssh_pty_enable] = true
@@ -551,7 +541,7 @@ module ChefMetalFog
     end
 
     def create_winrm_transport(machine_spec, machine_options, server)
-      hostname = get_server_ipaddress(server)
+      hostname = get_server_ip_address(machine_spec, machine_options, server)
       port = 5985
       endpoint = "http://#{hostname}:#{port}/wsman"
       type = :plaintext
@@ -563,6 +553,19 @@ module ChefMetalFog
       }
 
       ChefMetal::Transport::WinRM.new(endpoint, type, options)
+    end
+
+    def get_server_ip_address(machine_spec, machine_options, server)
+      if machine_spec.location['use_private_ip_for_ssh']
+        server.private_ip_address
+      elsif !server.public_ip_address
+        Chef::Log.warn("Server #{machine_spec.name} has no public ip address.  Using private ip '#{server.private_ip_address}'.  Set driver option 'use_private_ip_for_ssh' => true if this will always be the case ...")
+        server.private_ip_address
+      elsif server.public_ip_address
+        server.public_ip_address
+      else
+        raise "Server #{server.id} has no private or public IP address!"
+      end
     end
 
     def self.compute_options_for(provider, id, config)
