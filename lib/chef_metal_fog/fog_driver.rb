@@ -220,7 +220,7 @@ module ChefMetalFog
 
     # Not meant to be part of public interface
     def transport_for(machine_spec, machine_options, server)
-      if machine_spec.location['is_windows']
+      if machine_options['is_windows']
         create_winrm_transport(machine_spec, machine_options, server)
       else
         create_ssh_transport(machine_spec, machine_options, server)
@@ -469,7 +469,7 @@ module ChefMetalFog
         raise "Server for node #{machine_spec.name} has not been created!"
       end
 
-      if machine_spec.location['is_windows']
+      if machine_options['is_windows']
         ChefMetal::Machine::WindowsMachine.new(machine_spec, transport_for(machine_spec, machine_options, server), convergence_strategy_for(machine_spec, machine_options))
       else
         ChefMetal::Machine::UnixMachine.new(machine_spec, transport_for(machine_spec, machine_options, server), convergence_strategy_for(machine_spec, machine_options))
@@ -482,7 +482,7 @@ module ChefMetalFog
         return ChefMetal::ConvergenceStrategy::NoConverge.new(machine_options[:convergence_options], config)
       end
 
-      if machine_spec.location['is_windows']
+      if machine_options['is_windows']
         ChefMetal::ConvergenceStrategy::InstallMsi.new(machine_options[:convergence_options], config)
       elsif machine_options[:cached_installer] == true
         ChefMetal::ConvergenceStrategy::InstallCached.new(machine_options[:convergence_options], config)
