@@ -553,7 +553,7 @@ module ChefMetalFog
         :basic_auth_only => true
       }
 
-      ChefMetal::Transport::WinRM.new(endpoint, type, options)
+      ChefMetal::Transport::WinRM.new(endpoint, type, options, {})
     end
 
     def get_server_ip_address(machine_spec, machine_options, server)
