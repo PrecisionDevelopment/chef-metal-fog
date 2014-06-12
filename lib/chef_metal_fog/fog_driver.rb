@@ -220,8 +220,11 @@ module ChefMetalFog
 
     # Not meant to be part of public interface
     def transport_for(machine_spec, machine_options, server)
-      # TODO winrm
-      create_ssh_transport(machine_spec, machine_options, server)
+      if machine_spec.location['is_windows']
+        create_winrm_transport(machine_spec, machine_options, server)
+      else
+        create_ssh_transport(machine_spec, machine_options, server)
+      end
     end
 
     protected
@@ -545,6 +548,21 @@ module ChefMetalFog
       options[:ssh_gateway] = machine_spec.location['ssh_gateway'] if machine_spec.location.has_key?('ssh_gateway')
 
       ChefMetal::Transport::SSH.new(remote_host, username, ssh_options, options, config)
+    end
+
+    def create_winrm_transport(machine_spec, machine_options, server)
+      hostname = get_server_ipaddress(server)
+      port = 5985
+      endpoint = "http://#{hostname}:#{port}/wsman"
+      type = :plaintext
+      options = {
+        :user => machine_options[:winrm_username] || 'Administrator',
+        :username => machine_options[:winrm_username] || 'Administrator',
+        :pass => machine_options[:winrm_password] || 'Testingisgood_123',
+        :basic_auth_only => true
+      }
+
+      ChefMetal::Transport::WinRM.new(endpoint, type, options)
     end
 
     def self.compute_options_for(provider, id, config)
