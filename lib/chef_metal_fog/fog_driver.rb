@@ -256,6 +256,7 @@ module ChefMetalFog
 
       description = [ "creating machine #{machine_spec.name} on #{driver_url}" ]
       bootstrap_options.each_pair { |key,value| description << "  #{key}: #{value.inspect}" }
+
       server = nil
       action_handler.report_progress description
       if action_handler.should_perform_actions
@@ -460,6 +461,32 @@ module ChefMetalFog
       end
 
       bootstrap_options[:name] ||= machine_spec.name
+
+       if machine_options[:is_windows]
+              bootstrap_options[:user_data] = <<EOT
+<powershell>
+Set-ExecutionPolicy Unrestricted
+cd $Env:USERPROFILE
+Set-Location -Path $Env:USERPROFILE
+[Environment]::CurrentDirectory=(Get-Location -PSProvider FileSystem).ProviderPath
+
+#change admin password
+net user Administrator '#{bootstrap_options[:winrm_password]}'
+Add-Content $log -value "Changed Administrator password"
+
+&winrm quickconfig `-q
+&winrm set winrm/config/winrs '@{MaxMemoryPerShellMB="1000"}'
+&winrm set winrm/config '@{MaxTimeoutms="1800000"}'
+&winrm set winrm/config/client/auth '@{Basic="true"}'
+&winrm set winrm/config/service/auth '@{Basic="true"}'
+&winrm set winrm/config/service '@{AllowUnencrypted="true"}'
+Add-Content $log -value "Ran quickconfig for winrm"
+
+&netsh advfirewall firewall add rule name="WinRM" dir=in action=allow protocol=TCP localport=5985 profile=public
+Add-Content $log -value "Ran firewall config to allow incoming winrm"
+</powershell>
+EOT
+      end
 
       bootstrap_options
     end
