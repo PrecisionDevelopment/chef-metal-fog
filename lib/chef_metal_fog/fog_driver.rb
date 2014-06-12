@@ -463,7 +463,7 @@ module ChefMetalFog
       bootstrap_options[:name] ||= machine_spec.name
 
        if machine_options[:is_windows]
-              bootstrap_options[:user_data] = <<EOT
+          bootstrap_options[:user_data] = <<EOT
 <powershell>
 Set-ExecutionPolicy Unrestricted
 cd $Env:USERPROFILE
@@ -472,7 +472,6 @@ Set-Location -Path $Env:USERPROFILE
 
 #change admin password
 net user Administrator '#{bootstrap_options[:winrm_password]}'
-Add-Content $log -value "Changed Administrator password"
 
 &winrm quickconfig `-q
 &winrm set winrm/config/winrs '@{MaxMemoryPerShellMB="1000"}'
@@ -480,10 +479,8 @@ Add-Content $log -value "Changed Administrator password"
 &winrm set winrm/config/client/auth '@{Basic="true"}'
 &winrm set winrm/config/service/auth '@{Basic="true"}'
 &winrm set winrm/config/service '@{AllowUnencrypted="true"}'
-Add-Content $log -value "Ran quickconfig for winrm"
 
 &netsh advfirewall firewall add rule name="WinRM" dir=in action=allow protocol=TCP localport=5985 profile=public
-Add-Content $log -value "Ran firewall config to allow incoming winrm"
 </powershell>
 EOT
       end
@@ -580,7 +577,7 @@ EOT
         :basic_auth_only => true
       }
 
-      ChefMetal::Transport::WinRM.new(endpoint, type, options, {})
+      ChefMetal::Transport::WinRM.new(endpoint, type, options, { :log_level => :debug })
     end
 
     def get_server_ip_address(machine_spec, machine_options, server)
