@@ -482,9 +482,12 @@ net user Administrator '#{bootstrap_options[:winrm_password]}'
 
 &netsh advfirewall firewall add rule name="WinRM" dir=in action=allow protocol=TCP localport=5985 profile=public
 
-$computerName = Get-WmiObject Win32_ComputerSystem
-$computername.Rename('#{machine_spec.name}')
-Restart-Computer -Force 
+$computer = Get-WmiObject Win32_ComputerSystem
+If($computer.Name -ne '#{machine_spec.name}')
+{
+  $computer.Rename('#{machine_spec.name}')
+  Restart-Computer -Force 
+}
 </powershell>
 EOT
       end
