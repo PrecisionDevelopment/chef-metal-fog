@@ -483,7 +483,7 @@ net user Administrator '#{bootstrap_options[:winrm_password]}'
 &netsh advfirewall firewall add rule name="WinRM" dir=in action=allow protocol=TCP localport=5985 profile=public
 
 $computer = Get-WmiObject Win32_ComputerSystem
-If($computer.Name -ne '#{machine_spec.name}')
+If($computer.Name.ToLower() -ne '#{machine_spec.name}'.ToLower())
 {
   $computer.Rename('#{machine_spec.name}')
   Restart-Computer -Force 
