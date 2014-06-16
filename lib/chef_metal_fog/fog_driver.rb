@@ -462,7 +462,7 @@ module ChefMetalFog
 
       bootstrap_options[:name] ||= machine_spec.name
 
-       if machine_options[:is_windows]
+       if machine_options[:is_windows] && provider == 'AWS'
           bootstrap_options[:user_data] = <<EOT
 <powershell>
 Set-ExecutionPolicy Unrestricted
@@ -481,6 +481,10 @@ net user Administrator '#{bootstrap_options[:winrm_password]}'
 &winrm set winrm/config/service '@{AllowUnencrypted="true"}'
 
 &netsh advfirewall firewall add rule name="WinRM" dir=in action=allow protocol=TCP localport=5985 profile=public
+
+$computerName = Get-WmiObject Win32_ComputerSystem
+$computername.Rename(#{machine_spec.name})
+Restart-Computer -Force 
 </powershell>
 EOT
       end
