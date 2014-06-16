@@ -98,7 +98,7 @@ module ChefMetalFog
     include Chef::Mixin::ShellOut
 
     DEFAULT_OPTIONS = {
-      :create_timeout => 180,
+      :create_timeout => 300,
       :start_timeout => 180,
       :ssh_timeout => 20
     }
