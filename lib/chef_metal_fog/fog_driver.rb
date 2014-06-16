@@ -482,7 +482,7 @@ net user Administrator '#{bootstrap_options[:winrm_password]}'
 
 &netsh advfirewall firewall add rule name="WinRM" dir=in action=allow protocol=TCP localport=5985 profile=public
 
-$EC2SettingsFile="C:\Program Files\Amazon\Ec2ConfigService\Settings\Config.xml"
+$EC2SettingsFile="C:\\Program Files\\Amazon\\Ec2ConfigService\\Settings\\Config.xml"
 $xml = [xml](get-content $EC2SettingsFile)
 $xmlElement = $xml.get_DocumentElement()
 $xmlElementToModify = $xmlElement.Plugins
