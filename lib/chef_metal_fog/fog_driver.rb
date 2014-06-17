@@ -480,28 +480,7 @@ net user Administrator '#{bootstrap_options[:winrm_password]}'
 &winrm set winrm/config/service/auth '@{Basic="true"}'
 &winrm set winrm/config/service '@{AllowUnencrypted="true"}'
 
-&netsh advfirewall firewall add rule name="WinRM" dir=in action=allow protocol=TCP localport=5985 profile=public
-
-$EC2SettingsFile="C:\\Program Files\\Amazon\\Ec2ConfigService\\Settings\\Config.xml"
-$xml = [xml](get-content $EC2SettingsFile)
-$xmlElement = $xml.get_DocumentElement()
-$xmlElementToModify = $xmlElement.Plugins
-
-foreach ($element in $xmlElementToModify.Plugin)
-{
-    if ($element.name -eq "Ec2SetComputerName")
-    {
-        $element.State="Disabled"
-    }
-}
-$xml.Save($EC2SettingsFile)
-
-$computer = Get-Content env:ComputerName
-If($computer.ToLower() -ne '#{machine_spec.name}'.ToLower())
-{
-  Rename-Computer '#{machine_spec.name}'
-  Restart-Computer -Force 
-}
+&netsh advfirewall firewall add rule name
 </powershell>
 EOT
       end
