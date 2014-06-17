@@ -480,7 +480,7 @@ net user Administrator '#{bootstrap_options[:winrm_password]}'
 &winrm set winrm/config/service/auth '@{Basic="true"}'
 &winrm set winrm/config/service '@{AllowUnencrypted="true"}'
 
-&netsh advfirewall firewall add rule name
+&netsh advfirewall firewall add rule name="WinRM" dir=in action=allow protocol=TCP localport=5985 profile=public
 </powershell>
 EOT
       end
