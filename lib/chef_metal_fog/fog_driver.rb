@@ -186,6 +186,9 @@ module ChefMetalFog
         end
       end
 
+      machine_spec.location['public_ip'] = get_server_ip_address(machine_spec, machine_options, server)
+      machine_spec.save(action_handler)
+      
       machine_for(machine_spec, machine_options, server)
     end
 
@@ -276,10 +279,13 @@ module ChefMetalFog
           'creator' => creator,
           'allocated_at' => Time.now.utc.to_s
         }
+
         machine_spec.location['key_name'] = bootstrap_options[:key_name] if bootstrap_options[:key_name]
         %w(is_windows ssh_username sudo use_private_ip_for_ssh ssh_gateway).each do |key|
           machine_spec.location[key] = machine_options[key.to_sym] if machine_options[key.to_sym]
         end
+
+        machine_spec.location['public_ip'] = get_server_ip_address(machine_spec, machine_options, server)
       end
       action_handler.performed_action "machine #{machine_spec.name} created as #{server.id} on #{driver_url}"
       server
@@ -305,7 +311,7 @@ module ChefMetalFog
     def restart_server(action_handler, machine_spec, server)
       action_handler.perform_action "restart machine #{machine_spec.name} (#{server.id} on #{driver_url})" do
         server.reboot
-        machine_spec.location['started_at'] = Time.now.utc.to_s
+        machine_spec.location['started_at'] = Time.now.utc.to_s        
       end
       machine_spec.save(action_handler)
     end
