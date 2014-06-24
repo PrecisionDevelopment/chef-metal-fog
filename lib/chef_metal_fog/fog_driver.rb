@@ -466,8 +466,8 @@ module ChefMetalFog
       }
       # User-defined tags override the ones we set
       tags.merge(bootstrap_tags)
-if machine_options[:is_windows] && provider == 'AWS'
-          bootstrap_options[:user_data] = <<EOT
+      if machine_options[:is_windows] && provider == 'AWS'
+        bootstrap_options[:user_data] = <<EOT
 <powershell>
 Set-ExecutionPolicy Unrestricted
 cd $Env:USERPROFILE
@@ -487,7 +487,7 @@ net user Administrator '#{bootstrap_options[:winrm_password]}'
 &netsh advfirewall firewall add rule name="WinRM" dir=in action=allow protocol=TCP localport=5985 profile=public
 </powershell>
 EOT
-end
+    end
 
     def machine_for(machine_spec, machine_options, server = nil)
       server ||= server_for(machine_spec)
@@ -519,9 +519,9 @@ end
 
     def ssh_options_for(machine_spec, machine_options, server)
       result = {
-# TODO create a user known hosts file
-#          :user_known_hosts_file => vagrant_ssh_config['UserKnownHostsFile'],
-#          :paranoid => true,
+			# TODO create a user known hosts file
+			#          :user_known_hosts_file => vagrant_ssh_config['UserKnownHostsFile'],
+			#          :paranoid => true,
         :auth_methods => [ 'publickey' ],
         :keys_only => true,
         :host_key_alias => "#{server.id}.#{provider}"
@@ -606,5 +606,4 @@ end
     def self.compute_options_for(provider, id, config)
       raise "unsupported fog provider #{provider}"
     end
-  end
 end
