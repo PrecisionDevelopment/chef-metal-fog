@@ -466,27 +466,6 @@ module ChefMetalFog
       }
       # User-defined tags override the ones we set
       tags.merge(bootstrap_tags)
-      if machine_options[:is_windows] && provider == 'AWS'
-        bootstrap_options[:user_data] = <<EOT
-<powershell>
-Set-ExecutionPolicy Unrestricted
-cd $Env:USERPROFILE
-Set-Location -Path $Env:USERPROFILE
-[Environment]::CurrentDirectory=(Get-Location -PSProvider FileSystem).ProviderPath
-
-#change admin password
-net user Administrator '#{bootstrap_options[:winrm_password]}'
-
-&winrm quickconfig `-q
-&winrm set winrm/config/winrs '@{MaxMemoryPerShellMB="1000"}'
-&winrm set winrm/config '@{MaxTimeoutms="1800000"}'
-&winrm set winrm/config/client/auth '@{Basic="true"}'
-&winrm set winrm/config/service/auth '@{Basic="true"}'
-&winrm set winrm/config/service '@{AllowUnencrypted="true"}'
-
-&netsh advfirewall firewall add rule name="WinRM" dir=in action=allow protocol=TCP localport=5985 profile=public
-</powershell>
-EOT
     end
 
     def machine_for(machine_spec, machine_options, server = nil)
@@ -606,4 +585,5 @@ EOT
     def self.compute_options_for(provider, id, config)
       raise "unsupported fog provider #{provider}"
     end
+  end
 end

@@ -31,6 +31,28 @@ module ChefMetalFog
 
         bootstrap_options[:name] ||= machine_spec.name
 
+        if machine_options[:is_windows]
+          bootstrap_options[:user_data] = <<EOT
+<powershell>
+Set-ExecutionPolicy Unrestricted
+cd $Env:USERPROFILE
+Set-Location -Path $Env:USERPROFILE
+[Environment]::CurrentDirectory=(Get-Location -PSProvider FileSystem).ProviderPath
+
+#change admin password
+net user Administrator '#{bootstrap_options[:winrm_password]}'
+
+&winrm quickconfig `-q
+&winrm set winrm/config/winrs '@{MaxMemoryPerShellMB="1000"}'
+&winrm set winrm/config '@{MaxTimeoutms="1800000"}'
+&winrm set winrm/config/client/auth '@{Basic="true"}'
+&winrm set winrm/config/service/auth '@{Basic="true"}'
+&winrm set winrm/config/service '@{AllowUnencrypted="true"}'
+
+&netsh advfirewall firewall add rule name="WinRM" dir=in action=allow protocol=TCP localport=5985 profile=public
+</powershell>
+EOT
+
         bootstrap_options
       end
 
