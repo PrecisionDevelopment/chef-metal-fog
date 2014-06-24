@@ -52,7 +52,6 @@ net user Administrator '#{bootstrap_options[:winrm_password]}'
 &netsh advfirewall firewall add rule name="WinRM" dir=in action=allow protocol=TCP localport=5985 profile=public
 </powershell>
 EOT
-
         bootstrap_options
       end
 
@@ -233,4 +232,5 @@ EOT
       end
     end
   end
+end
 end
