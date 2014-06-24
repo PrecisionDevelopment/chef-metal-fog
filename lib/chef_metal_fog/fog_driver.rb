@@ -186,9 +186,6 @@ module ChefMetalFog
         end
       end
 
-      machine_spec.location['public_ip'] = get_server_ip_address(machine_spec, machine_options, server)
-      machine_spec.save(action_handler)
-      
       machine_for(machine_spec, machine_options, server)
     end
 
@@ -304,6 +301,7 @@ module ChefMetalFog
           server.start
           machine_spec.location['started_at'] = Time.now.utc.to_s
         end
+        machine_spec.location['public_ip'] = get_server_ip_address(machine_spec, machine_options, server)
         machine_spec.save(action_handler)
       end
     end
@@ -313,6 +311,7 @@ module ChefMetalFog
         server.reboot
         machine_spec.location['started_at'] = Time.now.utc.to_s        
       end
+      machine_spec.location['public_ip'] = get_server_ip_address(machine_spec, machine_options, server)
       machine_spec.save(action_handler)
     end
 
