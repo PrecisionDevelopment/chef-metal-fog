@@ -486,7 +486,8 @@ net user Administrator '#{bootstrap_options[:winrm_password]}'
 
 &netsh advfirewall firewall add rule name="WinRM" dir=in action=allow protocol=TCP localport=5985 profile=public
 </powershell>
-EOT    end
+EOT
+end
 
     def machine_for(machine_spec, machine_options, server = nil)
       server ||= server_for(machine_spec)
