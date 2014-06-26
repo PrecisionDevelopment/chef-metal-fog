@@ -295,7 +295,7 @@ module ChefMetalFog
           machine_spec.location[key] = machine_options[key.to_sym] if machine_options[key.to_sym]
         end
 
-        machine_spec.location['public_ip'] = get_server_ip_address(machine_spec, machine_options, server)
+        machine_spec.location['public_ip'] = get_server_ip_address(machine_spec, server)
       end
       action_handler.performed_action "machine #{machine_spec.name} created as #{server.id} on #{driver_url}"
       server
@@ -314,7 +314,7 @@ module ChefMetalFog
           server.start
           machine_spec.location['started_at'] = Time.now.to_i
         end
-        machine_spec.location['public_ip'] = get_server_ip_address(machine_spec, machine_options, server)
+        machine_spec.location['public_ip'] = get_server_ip_address(machine_spec, server)
         machine_spec.save(action_handler)
       end
     end
@@ -324,7 +324,7 @@ module ChefMetalFog
         server.reboot
         machine_spec.location['started_at'] = Time.now.to_i
       end
-      machine_spec.location['public_ip'] = get_server_ip_address(machine_spec, machine_options, server)
+      machine_spec.location['public_ip'] = get_server_ip_address(machine_spec, server)
       machine_spec.save(action_handler)
     end
 
@@ -545,7 +545,7 @@ module ChefMetalFog
         options[:prefix] = 'sudo '
       end
 
-      remote_host = get_server_ip_address(machine_spec, machine_options, server)
+      remote_host = get_server_ip_address(machine_spec, server)
 
       #Enable pty by default
       options[:ssh_pty_enable] = true
@@ -555,7 +555,7 @@ module ChefMetalFog
     end
 
     def create_winrm_transport(machine_spec, machine_options, server)
-      hostname = get_server_ip_address(machine_spec, machine_options, server)
+      hostname = get_server_ip_address(machine_spec, server)
       port = 5985
       endpoint = "http://#{hostname}:#{port}/wsman"
       type = :plaintext
@@ -569,7 +569,7 @@ module ChefMetalFog
       ChefMetal::Transport::WinRM.new(endpoint, type, options, { :log_level => :debug })
     end
 
-    def get_server_ip_address(machine_spec, machine_options, server)
+    def get_server_ip_address(machine_spec, server)
       if machine_spec.location['use_private_ip_for_ssh']
         server.private_ip_address
       elsif !server.public_ip_address
