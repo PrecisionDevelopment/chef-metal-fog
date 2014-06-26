@@ -34,7 +34,6 @@ module ChefMetalFog
         if machine_options[:is_windows]
           bootstrap_options[:user_data] = <<EOT
 <powershell>
-Set-ExecutionPolicy Unrestricted
 cd $Env:USERPROFILE
 Set-Location -Path $Env:USERPROFILE
 [Environment]::CurrentDirectory=(Get-Location -PSProvider FileSystem).ProviderPath
