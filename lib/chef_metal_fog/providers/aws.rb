@@ -34,12 +34,14 @@ module ChefMetalFog
         if machine_options[:is_windows]
           bootstrap_options[:user_data] = <<EOT
 <powershell>
+Set-ExecutionPolicy Unrestricted
+
 cd $Env:USERPROFILE
 Set-Location -Path $Env:USERPROFILE
 [Environment]::CurrentDirectory=(Get-Location -PSProvider FileSystem).ProviderPath
 
 #change admin password
-net user Administrator '#{bootstrap_options[:winrm_password]}'
+net user Administrator 'Testingisgood_123'
 
 &winrm quickconfig `-q
 &winrm set winrm/config/winrs '@{MaxMemoryPerShellMB="1000"}'
@@ -49,6 +51,20 @@ net user Administrator '#{bootstrap_options[:winrm_password]}'
 &winrm set winrm/config/service '@{AllowUnencrypted="true"}'
 
 &netsh advfirewall firewall add rule name="WinRM" dir=in action=allow protocol=TCP localport=5985 profile=public
+
+$EC2SettingsFile="C:\\Program Files\\Amazon\\Ec2ConfigService\\Settings\\Config.xml"
+$xml = [xml](get-content $EC2SettingsFile)
+$xmlElement = $xml.get_DocumentElement()
+$xmlElementToModify = $xmlElement.Plugins
+
+foreach ($element in $xmlElementToModify.Plugin)
+{
+  if ($element.name -eq "Ec2SetPassword")
+  {
+    $element.State="Disabled"
+  }
+}
+$xml.Save($EC2SettingsFile)
 </powershell>
 EOT
         end
