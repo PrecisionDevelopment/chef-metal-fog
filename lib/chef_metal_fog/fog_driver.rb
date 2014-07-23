@@ -563,10 +563,11 @@ module ChefMetalFog
         :user => machine_options[:winrm_username] || 'Administrator',
         :username => machine_options[:winrm_username] || 'Administrator',
         :pass => machine_options[:winrm_password] || 'Testingisgood_123',
-        :basic_auth_only => true
+        :basic_auth_only => true,
+        :operation_timeout => 1800
       }
 
-      ChefMetal::Transport::WinRM.new(endpoint, type, options, { :log_level => :debug })
+      ChefMetal::Transport::WinRM.new(endpoint, type, options, { :log_level => :info })
     end
 
     def get_server_ip_address(machine_spec, server)
